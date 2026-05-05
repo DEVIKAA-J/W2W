@@ -87,18 +87,29 @@ const API_KEY = 'your_tmdb_api_key_here';
 
 ## 🌐 Deploying
 
-### GitHub Pages
+## 🌐 Live Demo
 
-1. Push `index.html` to a GitHub repo
-2. Go to **Settings → Pages**
-3. Set source to `main` branch, `/ (root)`
-4. Your app is live at `https://your-username.github.io/w2w/`
-
-### Netlify / Vercel
-
-Drop the `index.html` file into [Netlify Drop](https://app.netlify.com/drop) or connect your GitHub repo — it deploys instantly.
+**[→ w2wtonight.netlify.app](https://w2wtonight.netlify.app/)**
 
 ---
+
+## 🚀 Deploy Your Own
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start)
+
+### Netlify
+1. Fork this repo
+2. Go to [netlify.com](https://netlify.com) → **Add new site → Import from Git**
+3. Select your fork — no build settings needed
+4. Hit **Deploy** — live in seconds
+
+### GitHub Pages
+1. Go to **Settings → Pages**
+2. Set source to `main` branch, `/ (root)`
+3. Live at `https://your-username.github.io/w2w/`
+
+### Netlify Drop *(quickest)*
+Drag `index.html` into [app.netlify.com/drop](https://app.netlify.com/drop) — done.
 
 ## 📸 Preview
 

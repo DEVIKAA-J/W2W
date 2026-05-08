@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tonight's Pick · Cozy Movie Finder</title>
+  <title>Tonight's Pick · W2W</title>
   <meta name="description" content="Find your perfect movie or show for tonight based on your mood." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -33,15 +33,19 @@
       overflow-x: hidden;
       position: relative;
     }
-    .app-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 50px;
-  font-weight: 400;
-  color: rgba(var(--moss-green), 0.8);
-  margin-bottom: 6px;
-  letter-spacing: 0.08em;
-  text-align: center;
-}
+
+    /* Stars canvas */
+    #starsCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+    #starsCanvas.visible { opacity: 1; }
+
     .bg-orb {
       position: fixed;
       border-radius: 50%;
@@ -50,428 +54,460 @@
       z-index: 0;
       opacity: .35;
     }
-    .orb1 {
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, #105666, transparent 70%);
-      top: -100px;
-      left: -150px;
-      animation: floatOrb 14s ease-in-out infinite;
-    }
-    .orb2 {
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, #839958, transparent 70%);
-      top: 40%;
-      right: -120px;
-      animation: floatOrb 18s ease-in-out infinite reverse;
-    }
-    .orb3 {
-      width: 350px;
-      height: 350px;
-      background: radial-gradient(circle, #D3968C44, transparent 70%);
-      bottom: 5%;
-      left: 10%;
-      animation: floatOrb 22s ease-in-out infinite;
-    }
-    @keyframes floatOrb {
-      0%,100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-30px) scale(1.08); }
-    }
-    .lily-deco {
+    .orb1 { width:500px;height:500px;background:radial-gradient(circle,#105666,transparent 70%);top:-100px;left:-150px;animation:floatOrb 14s ease-in-out infinite; }
+    .orb2 { width:400px;height:400px;background:radial-gradient(circle,#839958,transparent 70%);top:40%;right:-120px;animation:floatOrb 18s ease-in-out infinite reverse; }
+    .orb3 { width:350px;height:350px;background:radial-gradient(circle,#D3968C44,transparent 70%);bottom:5%;left:10%;animation:floatOrb 22s ease-in-out infinite; }
+    @keyframes floatOrb { 0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-30px) scale(1.08);} }
+
+    .lily-deco { position:fixed;bottom:20px;right:24px;font-size:48px;opacity:.12;pointer-events:none;z-index:0;transform:rotate(-15deg); }
+
+    .wrap { width:100%;max-width:820px;padding:3rem 1.5rem 2rem;position:relative;z-index:1; }
+    .header { text-align:center;margin-bottom:2rem; }
+    .app-name { font-family:'Cormorant Garamond',serif;font-size:50px;font-weight:400;color:var(--moss-green);margin-bottom:6px;letter-spacing:.08em;text-align:center; }
+    .header-moon { font-size:28px;display:block;margin-bottom:.5rem;animation:sway 4s ease-in-out infinite; }
+    @keyframes sway { 0%,100%{transform:rotate(-5deg);}50%{transform:rotate(5deg);} }
+    .headline { font-family:'Cormorant Garamond',serif;font-size:clamp(42px,8vw,64px);font-weight:600;letter-spacing:-.01em;line-height:1;margin-bottom:.75rem; }
+    .tagline { color:var(--moss-green);font-style:italic;font-family:'Cormorant Garamond',serif;font-size:18px; }
+
+    .section { margin-bottom:1.5rem; }
+    .section-label { font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--moss-green);margin-bottom:12px; }
+    .type-row, .pill-row { display:flex;gap:10px;flex-wrap:wrap; }
+
+    .type-btn { flex:1;min-width:130px;font-family:'Jost',sans-serif;font-size:14px;font-weight:400;padding:13px 18px;border-radius:14px;border:1px solid rgba(131,153,88,.3);background:rgba(247,244,213,.05);color:rgba(247,244,213,.6);cursor:pointer;transition:all .25s ease;display:flex;align-items:center;justify-content:center;gap:8px;backdrop-filter:blur(8px); }
+    .type-btn:hover,.type-btn.active { border-color:var(--moss-green);color:var(--beige);background:rgba(131,153,88,.12); }
+    .type-btn.active { background:var(--moss-green);color:var(--dark-green);font-weight:500; }
+
+    .step-indicator { display:flex;align-items:center;gap:8px;margin-bottom:1.5rem; }
+    .step-dot { width:28px;height:28px;border-radius:50%;border:1px solid rgba(131,153,88,.35);background:transparent;color:rgba(247,244,213,.4);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;transition:all .3s ease; }
+    .step-dot.active { background:var(--moss-green);border-color:var(--moss-green);color:var(--dark-green); }
+    .step-dot.done { background:rgba(131,153,88,.2);border-color:var(--moss-green);color:var(--moss-green); }
+    .step-line { flex:1;height:1px;background:rgba(131,153,88,.2); }
+    .step-label { font-size:11px;color:rgba(131,153,88,.7);letter-spacing:.06em; }
+
+    .pill-btn { border:1px solid rgba(131,153,88,.25);background:rgba(247,244,213,.04);color:rgba(247,244,213,.72);padding:9px 13px;border-radius:999px;font-size:12px;cursor:pointer;transition:.2s ease; }
+    .pill-btn:hover,.pill-btn.active { border-color:var(--moss-green);background:rgba(131,153,88,.16);color:var(--beige); }
+
+    .mood-grid,.vibe-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px; }
+    .mood-card,.vibe-card { padding:18px 14px 16px;border-radius:18px;border:1px solid rgba(131,153,88,.2);background:rgba(247,244,213,.04);cursor:pointer;transition:all .25s ease;backdrop-filter:blur(8px);text-align:left;display:flex;flex-direction:column;gap:8px; }
+    .vibe-card { border-color:rgba(211,150,140,.2); }
+    .mood-card:hover,.vibe-card:hover { transform:translateY(-2px); }
+    .mood-card.active { border-color:var(--moss-green);background:rgba(131,153,88,.15); }
+    .vibe-card.active { border-color:var(--rosy);background:rgba(211,150,140,.12); }
+    .mood-emoji,.vibe-emoji { font-size:28px;line-height:1; }
+    .mood-name { font-size:13px;font-weight:500;color:var(--beige); }
+    .vibe-name { font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--beige); }
+    .mood-desc,.vibe-combo { font-size:11px;line-height:1.4;color:rgba(247,244,213,.45); }
+
+    .back-btn { background:none;border:none;color:rgba(131,153,88,.7);font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.08em;cursor:pointer;padding:0;margin-bottom:1.5rem;display:flex;align-items:center;gap:6px;transition:color .2s; }
+    .back-btn:hover { color:var(--moss-green); }
+
+    .selected-mood-tag,.selected-filters-tag { display:inline-flex;align-items:center;gap:6px;background:rgba(131,153,88,.15);border:1px solid rgba(131,153,88,.3);border-radius:100px;padding:5px 14px;font-size:12px;color:var(--moss-green);margin-bottom:1rem;flex-wrap:wrap; }
+
+    .error-box { display:none;background:rgba(211,150,140,.15);border:1px solid rgba(211,150,140,.4);color:var(--rosy-light);padding:12px 16px;border-radius:12px;font-size:13px;margin-bottom:1rem; }
+
+    .pick-btn { width:100%;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;letter-spacing:.02em;padding:18px 24px;border-radius:16px;border:none;background:linear-gradient(135deg,var(--midnight) 0%,#0d4a5a 50%,var(--midnight) 100%);color:var(--beige);cursor:pointer;position:relative;overflow:hidden;transition:all .3s ease;box-shadow:0 4px 24px rgba(16,86,102,.5),inset 0 1px 0 rgba(247,244,213,.1);margin-top:1.5rem;margin-bottom:2rem;display:none; }
+    .pick-btn:hover { transform:translateY(-2px); }
+    .pick-btn:disabled { opacity:.6;cursor:not-allowed;transform:none; }
+    .pick-btn.loading { animation:pulse-ring 1.2s ease-out infinite; }
+    @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(16,86,102,.5);}100%{box-shadow:0 0 0 20px rgba(16,86,102,0);} }
+
+    /* ===================== CANDLE LOADER ===================== */
+    .candle-overlay {
       position: fixed;
-      bottom: 20px;
-      right: 24px;
-      font-size: 48px;
-      opacity: .12;
+      inset: 0;
+      background: rgba(10, 51, 35, 0.92);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      opacity: 0;
       pointer-events: none;
-      z-index: 0;
-      transform: rotate(-15deg);
+      transition: opacity 0.4s ease;
     }
-    .wrap {
-      width: 100%;
-      max-width: 820px;
-      padding: 3rem 1.5rem 2rem;
+    .candle-overlay.active { opacity: 1; pointer-events: all; }
+
+    .candle-wrapper {
       position: relative;
-      z-index: 1;
-    }
-    .header { text-align: center; margin-bottom: 2rem; }
-    .header-moon {
-      font-size: 28px;
-      display: block;
-      margin-bottom: .5rem;
-      animation: sway 4s ease-in-out infinite;
-    }
-    @keyframes sway {
-      0%,100% { transform: rotate(-5deg); }
-      50% { transform: rotate(5deg); }
-    }
-    .headline {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(42px, 8vw, 64px);
-      font-weight: 600;
-      letter-spacing: -.01em;
-      line-height: 1;
-      margin-bottom: .75rem;
-    }
-    .tagline {
-      color: var(--moss-green);
-      font-style: italic;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 18px;
-    }
-    .section { margin-bottom: 1.5rem; }
-    .section-label {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: var(--moss-green);
-      margin-bottom: 12px;
-    }
-    .type-row, .pill-row {
+      width: 60px;
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .type-btn {
-      flex: 1;
-      min-width: 130px;
-      font-family: 'Jost', sans-serif;
-      font-size: 14px;
-      font-weight: 400;
-      padding: 13px 18px;
-      border-radius: 14px;
-      border: 1px solid rgba(131,153,88,.3);
-      background: rgba(247,244,213,.05);
-      color: rgba(247,244,213,.6);
-      cursor: pointer;
-      transition: all .25s ease;
-      display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      backdrop-filter: blur(8px);
     }
-    .type-btn:hover, .type-btn.active {
-      border-color: var(--moss-green);
-      color: var(--beige);
-      background: rgba(131,153,88,.12);
+
+    /* Flame */
+    .candle-flame {
+      position: relative;
+      width: 18px;
+      height: 30px;
+      margin-bottom: -2px;
+      z-index: 2;
     }
-    .type-btn.active {
-      background: var(--moss-green);
-      color: var(--dark-green);
-      font-weight: 500;
+    .flame-inner {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 22px;
+      background: radial-gradient(ellipse at 50% 80%, #fff7c0 0%, #ffcc44 40%, #ff8800 80%, transparent 100%);
+      border-radius: 50% 50% 40% 40%;
+      animation: flicker 0.9s ease-in-out infinite alternate;
+      filter: blur(0.5px);
     }
-    .step-indicator {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 1.5rem;
+    .flame-outer {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 30px;
+      background: radial-gradient(ellipse at 50% 80%, rgba(255,200,60,0.5) 0%, rgba(255,120,20,0.3) 50%, transparent 100%);
+      border-radius: 50% 50% 40% 40%;
+      animation: flicker 1.1s ease-in-out infinite alternate-reverse;
     }
-    .step-dot {
-      width: 28px;
-      height: 28px;
+    .flame-glow {
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 20px;
+      background: radial-gradient(ellipse, rgba(255,180,30,0.35), transparent 70%);
       border-radius: 50%;
-      border: 1px solid rgba(131,153,88,.35);
-      background: transparent;
-      color: rgba(247,244,213,.4);
-      font-size: 11px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all .3s ease;
+      animation: glowPulse 1.4s ease-in-out infinite;
     }
-    .step-dot.active {
-      background: var(--moss-green);
-      border-color: var(--moss-green);
-      color: var(--dark-green);
+    @keyframes flicker {
+      0% { transform: translateX(-50%) scaleX(1) scaleY(1) rotate(-1deg); }
+      100% { transform: translateX(-50%) scaleX(0.88) scaleY(1.06) rotate(1.5deg); }
     }
-    .step-dot.done {
-      background: rgba(131,153,88,.2);
-      border-color: var(--moss-green);
-      color: var(--moss-green);
+    @keyframes glowPulse {
+      0%,100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
     }
-    .step-line { flex: 1; height: 1px; background: rgba(131,153,88,.2); }
-    .step-label { font-size: 11px; color: rgba(131,153,88,.7); letter-spacing: .06em; }
-    .pill-btn {
-      border: 1px solid rgba(131,153,88,.25);
-      background: rgba(247,244,213,.04);
-      color: rgba(247,244,213,.72);
-      padding: 9px 13px;
-      border-radius: 999px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: .2s ease;
+
+    /* Wick */
+    .candle-wick {
+      width: 2px;
+      height: 8px;
+      background: #4a3010;
+      border-radius: 1px;
+      margin-bottom: -1px;
+      z-index: 2;
+      position: relative;
     }
-    .pill-btn:hover, .pill-btn.active {
-      border-color: var(--moss-green);
-      background: rgba(131,153,88,.16);
-      color: var(--beige);
-    }
-    .mood-grid, .vibe-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-      gap: 10px;
-    }
-    .mood-card, .vibe-card {
-      padding: 18px 14px 16px;
-      border-radius: 18px;
-      border: 1px solid rgba(131,153,88,.2);
-      background: rgba(247,244,213,.04);
-      cursor: pointer;
-      transition: all .25s ease;
-      backdrop-filter: blur(8px);
-      text-align: left;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .vibe-card { border-color: rgba(211,150,140,.2); }
-    .mood-card:hover, .vibe-card:hover { transform: translateY(-2px); }
-    .mood-card.active { border-color: var(--moss-green); background: rgba(131,153,88,.15); }
-    .vibe-card.active { border-color: var(--rosy); background: rgba(211,150,140,.12); }
-    .mood-emoji, .vibe-emoji { font-size: 28px; line-height: 1; }
-    .mood-name { font-size: 13px; font-weight: 500; color: var(--beige); }
-    .vibe-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--beige);
-    }
-    .mood-desc, .vibe-combo {
-      font-size: 11px;
-      line-height: 1.4;
-      color: rgba(247,244,213,.45);
-    }
-    .back-btn {
-      background: none;
-      border: none;
-      color: rgba(131,153,88,.7);
-      font-family: 'Jost', sans-serif;
-      font-size: 12px;
-      letter-spacing: .08em;
-      cursor: pointer;
-      padding: 0;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: color .2s;
-    }
-    .back-btn:hover { color: var(--moss-green); }
-    .selected-mood-tag, .selected-filters-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(131,153,88,.15);
-      border: 1px solid rgba(131,153,88,.3);
-      border-radius: 100px;
-      padding: 5px 14px;
-      font-size: 12px;
-      color: var(--moss-green);
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-    .error-box {
-      display: none;
-      background: rgba(211,150,140,.15);
-      border: 1px solid rgba(211,150,140,.4);
-      color: var(--rosy-light);
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 13px;
-      margin-bottom: 1rem;
-    }
-    .pick-btn {
-      width: 100%;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 20px;
-      font-weight: 600;
-      letter-spacing: .02em;
-      padding: 18px 24px;
-      border-radius: 16px;
-      border: none;
-      background: linear-gradient(135deg, var(--midnight) 0%, #0d4a5a 50%, var(--midnight) 100%);
-      color: var(--beige);
-      cursor: pointer;
+
+    /* Candle body */
+    .candle-body {
+      width: 40px;
+      border-radius: 4px 4px 3px 3px;
+      background: linear-gradient(135deg, #f0e8d0 0%, #e8d9b8 40%, #c8b890 100%);
       position: relative;
       overflow: hidden;
-      transition: all .3s ease;
-      box-shadow: 0 4px 24px rgba(16,86,102,.5), inset 0 1px 0 rgba(247,244,213,.1);
-      margin-top: 1.5rem;
-      margin-bottom: 2rem;
-      display: none;
+      box-shadow: 2px 4px 12px rgba(0,0,0,0.4), inset -3px 0 8px rgba(0,0,0,0.15);
+      transition: height 0.3s ease;
     }
-    .pick-btn:hover { transform: translateY(-2px); }
-    .pick-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-    .pick-btn.loading { animation: pulse-ring 1.2s ease-out infinite; }
-    @keyframes pulse-ring {
-      0% { box-shadow: 0 0 0 0 rgba(16,86,102,.5); }
-      100% { box-shadow: 0 0 0 20px rgba(16,86,102,0); }
+    .candle-body::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 2px;
     }
-    #resultsSection { display: none; }
-    .results-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.2rem;
-      flex-wrap: wrap;
-      gap: 8px;
+    /* Wax drip */
+    .candle-body::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 44px;
+      height: 8px;
+      background: linear-gradient(180deg, #f5ead8 0%, #e8d9b8 100%);
+      border-radius: 0 0 50% 50%;
     }
-    .results-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--beige);
+
+    /* Melt pool */
+    .melt-pool {
+      width: 48px;
+      height: 8px;
+      background: radial-gradient(ellipse, rgba(230,210,170,0.9) 60%, transparent 100%);
+      border-radius: 50%;
+      margin-top: -3px;
+      animation: poolWobble 2s ease-in-out infinite;
     }
-    .results-count {
-      font-size: 11px;
-      color: rgba(131,153,88,.7);
-      letter-spacing: .07em;
-      text-transform: uppercase;
+    @keyframes poolWobble {
+      0%,100% { transform: scaleX(1); }
+      50% { transform: scaleX(1.05); }
     }
-    .start-over-btn {
-      background: none;
-      border: 1px solid rgba(211,150,140,.3);
-      color: var(--rosy);
-      font-family: 'Jost', sans-serif;
-      font-size: 12px;
-      padding: 7px 16px;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: all .2s ease;
-    }
-    .start-over-btn:hover {
-      background: rgba(211,150,140,.1);
-      border-color: var(--rosy);
-    }
-    .results-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      margin-bottom: 2rem;
-    }
-    .result-card {
-      display: flex;
-      background: rgba(247,244,213,.05);
-      border: 1px solid rgba(247,244,213,.1);
-      border-radius: 18px;
-      overflow: hidden;
-      backdrop-filter: blur(20px);
-      animation: cardReveal .45s cubic-bezier(.34,1.56,.64,1) forwards;
+
+    /* Drip animations */
+    .drip {
+      position: absolute;
+      width: 5px;
+      background: linear-gradient(180deg, #f0e4c8, #d4c090);
+      border-radius: 0 0 50% 50%;
+      top: 0;
       opacity: 0;
     }
-    @keyframes cardReveal {
-      from { opacity: 0; transform: translateY(20px) scale(.97); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+    .drip1 { left: 6px; animation: drip1 4s ease-in 0.5s infinite; }
+    .drip2 { right: 8px; animation: drip2 5s ease-in 2s infinite; }
+    .drip3 { left: 18px; animation: drip3 6s ease-in 1s infinite; }
+    @keyframes drip1 {
+      0% { height: 0; top: 0; opacity: 1; }
+      60% { height: 18px; top: 0; opacity: 1; }
+      100% { height: 18px; top: 4px; opacity: 0; }
     }
-    .result-poster-wrap { flex-shrink: 0; width: 110px; }
-    .result-poster {
-      width: 110px;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      min-height: 165px;
+    @keyframes drip2 {
+      0% { height: 0; top: 0; opacity: 1; }
+      60% { height: 12px; top: 0; opacity: 1; }
+      100% { height: 12px; top: 3px; opacity: 0; }
     }
-    .result-poster-placeholder {
-      width: 110px;
-      height: 100%;
-      min-height: 165px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(131,153,88,.08);
-      font-size: 32px;
+    @keyframes drip3 {
+      0% { height: 0; top: 0; opacity: 1; }
+      60% { height: 22px; top: 0; opacity: 1; }
+      100% { height: 22px; top: 5px; opacity: 0; }
     }
-    .result-body {
-      padding: 1.1rem 1.3rem;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex: 1;
-    }
-    .result-rank {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: rgba(131,153,88,.6);
-    }
-    .result-title {
+
+    .candle-loading-text {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 19px;
-      font-weight: 600;
+      font-size: 18px;
+      font-style: italic;
       color: var(--beige);
-      line-height: 1.2;
+      opacity: 0.85;
+      letter-spacing: 0.06em;
+      animation: textFade 2.5s ease-in-out infinite;
     }
-    .result-meta { font-size: 12px; color: rgba(131,153,88,.7); }
-    .result-rating {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      font-weight: 500;
-      background: rgba(131,153,88,.18);
-      border: 1px solid rgba(131,153,88,.3);
-      color: var(--moss-green);
-      padding: 3px 10px;
-      border-radius: 100px;
-      width: fit-content;
+    @keyframes textFade {
+      0%,100% { opacity: 0.6; }
+      50% { opacity: 1; }
     }
-    .result-overview {
-      font-size: 12px;
-      color: rgba(247,244,213,.55);
-      line-height: 1.65;
-      font-weight: 300;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+
+    /* ===================== RESULTS ===================== */
+    #resultsSection { display:none; }
+    .results-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:8px; }
+    .results-title { font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--beige); }
+    .results-count { font-size:11px;color:rgba(131,153,88,.7);letter-spacing:.07em;text-transform:uppercase; }
+    .start-over-btn { background:none;border:1px solid rgba(211,150,140,.3);color:var(--rosy);font-family:'Jost',sans-serif;font-size:12px;padding:7px 16px;border-radius:100px;cursor:pointer;transition:all .2s ease; }
+    .start-over-btn:hover { background:rgba(211,150,140,.1);border-color:var(--rosy); }
+
+    .results-grid { display:flex;flex-direction:column;gap:14px;margin-bottom:2rem; }
+
+    .result-card {
+      display:flex;
+      background:rgba(247,244,213,.05);
+      border:1px solid rgba(247,244,213,.1);
+      border-radius:18px;
+      overflow:hidden;
+      backdrop-filter:blur(20px);
+      animation:cardReveal .45s cubic-bezier(.34,1.56,.64,1) forwards;
+      opacity:0;
+      flex-direction: column;
     }
-    .footer {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 1.5rem;
-      font-size: 12px;
-      color: rgba(131,153,88,.6);
+    @keyframes cardReveal { from{opacity:0;transform:translateY(20px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);} }
+
+    .result-card-top { display: flex; }
+    .result-poster-wrap { flex-shrink:0;width:110px; }
+    .result-poster { width:110px;height:100%;object-fit:cover;display:block;min-height:165px; }
+    .result-poster-placeholder { width:110px;height:100%;min-height:165px;display:flex;align-items:center;justify-content:center;background:rgba(131,153,88,.08);font-size:32px; }
+    .result-body { padding:1.1rem 1.3rem;display:flex;flex-direction:column;gap:6px;flex:1; }
+    .result-rank { font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(131,153,88,.6); }
+    .result-title { font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--beige);line-height:1.2; }
+    .result-meta { font-size:12px;color:rgba(131,153,88,.7); }
+    .result-overview { font-size:12px;color:rgba(247,244,213,.55);line-height:1.65;font-weight:300;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden; }
+
+    .result-ratings { display:flex;gap:8px;flex-wrap:wrap;align-items:center; }
+    .rating-badge {
+      display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
+      padding:3px 10px;border-radius:100px;width:fit-content;
     }
-    .footer a { color: var(--moss-green); text-decoration: none; }
-    @media (max-width: 500px) {
-      .wrap { padding: 2rem 1.2rem 1.5rem; }
-      .headline { font-size: 38px; }
-      .mood-grid, .vibe-grid { grid-template-columns: repeat(2, 1fr); }
-      .result-card { flex-direction: column; }
-      .result-poster-wrap, .result-poster-placeholder, .result-poster { width: 100%; }
-      .result-poster, .result-poster-placeholder {
-        height: 180px;
-        object-position: center top;
-      }
+    .rating-tmdb { background:rgba(131,153,88,.18);border:1px solid rgba(131,153,88,.3);color:var(--moss-green); }
+    .rating-imdb { background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.35);color:#f5c518; }
+    .rating-rt-fresh { background:rgba(250,80,30,.1);border:1px solid rgba(250,80,30,.3);color:#fa501e; }
+    .rating-rt-rotten { background:rgba(128,128,128,.1);border:1px solid rgba(128,128,128,.3);color:#aaa; }
+
+    /* Trailer section */
+    .result-trailer {
+      width:100%;
+      padding:0 1.1rem 1.1rem;
+      display:none;
     }
-    .page { display: none; }
-    .page.active { display: block; }
+    .trailer-toggle {
+      background:rgba(16,86,102,.3);
+      border:1px solid rgba(16,86,102,.5);
+      color:rgba(247,244,213,.7);
+      font-family:'Jost',sans-serif;
+      font-size:11px;
+      letter-spacing:.07em;
+      padding:6px 14px;
+      border-radius:100px;
+      cursor:pointer;
+      transition:all .2s;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:4px;
+    }
+    .trailer-toggle:hover { background:rgba(16,86,102,.5);color:var(--beige); }
+    .trailer-embed {
+      display:none;
+      margin-top:10px;
+      border-radius:12px;
+      overflow:hidden;
+      aspect-ratio:16/9;
+      width:100%;
+    }
+    .trailer-embed.open { display:block; }
+    .trailer-embed iframe { width:100%;height:100%;border:none;display:block; }
+
+    /* Share button */
+    .share-btn {
+      background:rgba(211,150,140,.12);
+      border:1px solid rgba(211,150,140,.35);
+      color:var(--rosy);
+      font-family:'Jost',sans-serif;
+      font-size:11px;
+      padding:6px 14px;
+      border-radius:100px;
+      cursor:pointer;
+      transition:all .2s;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:4px;
+    }
+    .share-btn:hover { background:rgba(211,150,140,.25);border-color:var(--rosy); }
+
+    /* Share modal */
+    .share-modal {
+      position:fixed;
+      inset:0;
+      background:rgba(10,51,35,0.88);
+      backdrop-filter:blur(16px);
+      z-index:2000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .3s ease;
+    }
+    .share-modal.open { opacity:1;pointer-events:all; }
+    .share-modal-inner {
+      width:90%;
+      max-width:380px;
+      background:linear-gradient(160deg,#0e3d28,#0a2e1e);
+      border:1px solid rgba(131,153,88,.3);
+      border-radius:24px;
+      padding:1.8rem;
+      position:relative;
+      box-shadow:0 24px 60px rgba(0,0,0,.5);
+    }
+    .share-card {
+      background:linear-gradient(135deg,#0e3a26,#081f15);
+      border:1px solid rgba(131,153,88,.25);
+      border-radius:16px;
+      padding:1.4rem;
+      margin-bottom:1.2rem;
+      text-align:center;
+    }
+    .share-card-emoji { font-size:36px;margin-bottom:.5rem; }
+    .share-card-title { font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--beige);margin-bottom:.3rem; }
+    .share-card-meta { font-size:12px;color:var(--moss-green);margin-bottom:.5rem; }
+    .share-card-mood { font-size:11px;font-style:italic;color:rgba(247,244,213,.5); }
+    .share-card-brand { font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(131,153,88,.5);margin-top:.7rem; }
+    .share-options { display:flex;gap:10px;flex-wrap:wrap; }
+    .share-option-btn {
+      flex:1;min-width:120px;
+      padding:11px 14px;
+      border-radius:12px;
+      font-family:'Jost',sans-serif;
+      font-size:12px;
+      border:1px solid rgba(131,153,88,.3);
+      background:rgba(131,153,88,.08);
+      color:var(--beige);
+      cursor:pointer;
+      transition:all .2s;
+      display:flex;align-items:center;justify-content:center;gap:6px;
+    }
+    .share-option-btn:hover { background:rgba(131,153,88,.18);border-color:var(--moss-green); }
+    .share-close { position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(247,244,213,.4);font-size:18px;cursor:pointer;line-height:1; }
+    .share-close:hover { color:var(--beige); }
+
+    .footer { position:relative;z-index:1;text-align:center;padding:1.5rem;font-size:12px;color:rgba(131,153,88,.6); }
+    .footer a { color:var(--moss-green);text-decoration:none; }
+
+    @media (max-width:500px) {
+      .wrap { padding:2rem 1.2rem 1.5rem; }
+      .headline { font-size:38px; }
+      .mood-grid,.vibe-grid { grid-template-columns:repeat(2,1fr); }
+      .result-card-top { flex-direction:column; }
+      .result-poster-wrap,.result-poster-placeholder,.result-poster { width:100%; }
+      .result-poster,.result-poster-placeholder { height:180px;object-position:center top; }
+    }
+    .page { display:none; }
+    .page.active { display:block; }
   </style>
 </head>
 <body>
+  <canvas id="starsCanvas"></canvas>
   <div class="bg-orb orb1"></div>
   <div class="bg-orb orb2"></div>
   <div class="bg-orb orb3"></div>
   <div class="lily-deco">🪷</div>
 
+  <!-- Candle Loading Overlay -->
+  <div class="candle-overlay" id="candleOverlay">
+    <div class="candle-wrapper">
+      <div class="candle-flame">
+        <div class="flame-glow"></div>
+        <div class="flame-outer"></div>
+        <div class="flame-inner"></div>
+      </div>
+      <div class="candle-wick"></div>
+      <div class="candle-body" id="candleBody" style="height:90px;">
+        <div class="drip drip1"></div>
+        <div class="drip drip2"></div>
+        <div class="drip drip3"></div>
+      </div>
+      <div class="melt-pool"></div>
+    </div>
+    <div class="candle-loading-text" id="candleText">Finding your perfect watch…</div>
+  </div>
+
+  <!-- Share Modal -->
+  <div class="share-modal" id="shareModal">
+    <div class="share-modal-inner">
+      <button class="share-close" id="shareClose">✕</button>
+      <div class="share-card" id="shareCard">
+        <div class="share-card-emoji" id="shareEmoji">🎬</div>
+        <div class="share-card-title" id="shareTitle">Movie Title</div>
+        <div class="share-card-meta" id="shareMeta">2024 · Movie</div>
+        <div class="share-card-mood" id="shareMood">Mood: Cozy & Relaxed</div>
+        <div class="share-card-brand">w2wtonight.netlify.app</div>
+      </div>
+      <div class="share-options">
+        <button class="share-option-btn" id="shareCopy">📋 Copy text</button>
+        <button class="share-option-btn" id="shareNative">↗ Share</button>
+      </div>
+    </div>
+  </div>
+
   <main class="wrap">
     <section id="homePage" class="page active">
-  <header class="header">
-    <!-- App name at the very top -->
-    <div class="app-name">W2W</div>
-    
-    <div class="header-moon">🌙</div>
-    <h1 class="headline">Tonight's Pick</h1>
-    <p class="tagline">Find the perfect watch for tonight.</p>
-  </header>
-  <button class="pick-btn" id="openWizardBtn" style="display:block;">Pick your movie</button>
-</section>
+      <header class="header">
+        <div class="app-name">W2W</div>
+        <div class="header-moon">🌙</div>
+        <h1 class="headline">Tonight's Pick</h1>
+        <p class="tagline">Find the perfect watch for tonight.</p>
+      </header>
+      <button class="pick-btn" id="openWizardBtn" style="display:block;">Pick your movie</button>
+    </section>
 
     <section id="wizardPage" class="page">
       <button class="back-btn" id="backHomeBtn">← back to home</button>
@@ -506,6 +542,9 @@
         <div class="section-label">Duration</div>
         <div class="pill-row" id="durationRow"></div>
 
+        <div class="section-label">Release Decade</div>
+        <div class="pill-row" id="decadeRow"></div>
+
         <div class="section-label">Now pick your genre blend</div>
         <div class="vibe-grid" id="vibeGrid"></div>
 
@@ -527,70 +566,76 @@
   </main>
 
   <footer class="footer">
-    <p> Powered by <a href="https://www.themoviedb.org" target="_blank" rel="noreferrer">TMDB</a></p>
+    <p>Powered by <a href="https://www.themoviedb.org" target="_blank" rel="noreferrer">TMDB</a></p>
   </footer>
 
   <script>
     const API_KEY = '105bf5bfebfad7dcc278c12513ba1a6b';
+    const OMDB_KEY = 'thewdb'; // public fallback — replace with your own
 
     const LANGUAGES = [
-      { id: 'all', name: 'Any language' },
-      { id: 'en', name: 'English' },
-      { id: 'hi', name: 'Hindi' },
-      { id: 'ml', name: 'Malayalam' },
-      { id: 'ta', name: 'Tamil' },
-      { id: 'ko', name: 'Korean' },
-      { id: 'ja', name: 'Japanese' }
+      { id:'all', name:'Any language' },
+      { id:'en', name:'English' },
+      { id:'hi', name:'Hindi' },
+      { id:'ml', name:'Malayalam' },
+      { id:'ta', name:'Tamil' },
+      { id:'ko', name:'Korean' },
+      { id:'ja', name:'Japanese' }
     ];
-
     const CONTENT_TYPES = [
-      { id: 'any', name: 'Any type' },
-      { id: 'movie', name: 'Movies' },
-      { id: 'tv', name: 'TV Shows' },
-      { id: 'anime', name: 'Anime' }
+      { id:'any', name:'Any type' },
+      { id:'movie', name:'Movies' },
+      { id:'tv', name:'TV Shows' },
+      { id:'anime', name:'Anime' }
     ];
-
     const DURATIONS = [
-      { id: 'any', name: 'Any length', min: 0, max: 999 },
-      { id: 'short', name: 'Under 1 hour', min: 0, max: 60 },
-      { id: 'medium', name: 'Under 2 hours', min: 0, max: 120 },
-      { id: 'long', name: 'Under 3 hours', min: 0, max: 180 },
-      { id: 'marathon', name: '3+ hours', min: 180, max: 999 }
+      { id:'any', name:'Any length', min:0, max:999 },
+      { id:'short', name:'Under 1 hour', min:0, max:60 },
+      { id:'medium', name:'Under 2 hours', min:0, max:120 },
+      { id:'long', name:'Under 3 hours', min:0, max:180 },
+      { id:'marathon', name:'3+ hours', min:180, max:999 }
     ];
-
+    const DECADES = [
+      { id:'any', name:'Any decade', from:null, to:null },
+      { id:'70s', name:"70s", from:1970, to:1979 },
+      { id:'80s', name:"80s", from:1980, to:1989 },
+      { id:'90s', name:"90s", from:1990, to:1999 },
+      { id:'00s', name:"2000s", from:2000, to:2009 },
+      { id:'10s', name:"2010s", from:2010, to:2019 },
+      { id:'20s', name:"2020s", from:2020, to:2029 }
+    ];
     const MOODS = [
-      { id: 'happy', emoji: '☀️', name: 'Light & Happy', desc: 'Feel-good energy, smiles & warmth', vibes: ['romcom', 'adventurecomedy', 'familyfun', 'animatedcheer'] },
-      { id: 'cozy', emoji: '🕯️', name: 'Relaxed & Cozy', desc: 'Slow pace, comfort, no stress', vibes: ['cozydrama', 'naturaldoc', 'fantasyadventure', 'romcom'] },
-      { id: 'emotional', emoji: '🌧️', name: 'Emotional', desc: 'Ready to feel deeply', vibes: ['emotionaldrama', 'romanticmelodrama', 'warhistory', 'biopic'] },
-      { id: 'thrill', emoji: '🌑', name: 'Thrill & Dark', desc: 'Edge-of-seat tension & darkness', vibes: ['actionthriller', 'horrorthriller', 'crimemystery', 'psychothriller'] },
-      { id: 'romantic', emoji: '🌹', name: 'Romantic', desc: 'Love stories & soft feelings', vibes: ['romcom', 'romanticmelodrama', 'dramedy', 'fantasyromance'] },
-      { id: 'scifi', emoji: '🚀', name: 'Mind-blowing Sci-Fi', desc: 'Big ideas, far futures & wonder', vibes: ['scifiadventure', 'scifithriller', 'scifidrama', 'fantasyaction'] },
-      { id: 'comedy', emoji: '😂', name: 'Fun / Comedy Night', desc: 'Just laugh and have fun', vibes: ['adventurecomedy', 'romcom', 'animatedcheer', 'actioncomedy'] }
+      { id:'happy', emoji:'☀️', name:'Light & Happy', desc:'Feel-good energy, smiles & warmth', vibes:['romcom','adventurecomedy','familyfun','animatedcheer'] },
+      { id:'cozy', emoji:'🕯️', name:'Relaxed & Cozy', desc:'Slow pace, comfort, no stress', vibes:['cozydrama','naturaldoc','fantasyadventure','romcom'] },
+      { id:'emotional', emoji:'🌧️', name:'Emotional', desc:'Ready to feel deeply', vibes:['emotionaldrama','romanticmelodrama','warhistory','biopic'] },
+      { id:'thrill', emoji:'🌑', name:'Thrill & Dark', desc:'Edge-of-seat tension & darkness', vibes:['actionthriller','horrorthriller','crimemystery','psychothriller'] },
+      { id:'romantic', emoji:'🌹', name:'Romantic', desc:'Love stories & soft feelings', vibes:['romcom','romanticmelodrama','dramedy','fantasyromance'] },
+      { id:'scifi', emoji:'🚀', name:'Mind-blowing Sci-Fi', desc:'Big ideas, far futures & wonder', vibes:['scifiadventure','scifithriller','scifidrama','fantasyaction'] },
+      { id:'comedy', emoji:'😂', name:'Fun / Comedy Night', desc:'Just laugh and have fun', vibes:['adventurecomedy','romcom','animatedcheer','actioncomedy'] }
     ];
-
     const VIBES = {
-      romcom: { emoji: '💕', name: 'Rom-Com', combo: 'Comedy + Romance', genres: '35,10749' },
-      adventurecomedy: { emoji: '🗺️', name: 'Adventure Comedy', combo: 'Adventure + Comedy', genres: '12,35' },
-      actionthriller: { emoji: '⚡', name: 'Action Thriller', combo: 'Action + Thriller', genres: '28,53' },
-      scifiadventure: { emoji: '🌌', name: 'Sci-Fi Adventure', combo: 'Sci-Fi + Adventure', genres: '878,12' },
-      horrorthriller: { emoji: '🕸️', name: 'Horror Thriller', combo: 'Horror + Thriller', genres: '27,53' },
-      emotionaldrama: { emoji: '🎭', name: 'Emotional Drama', combo: 'Drama-focused', genres: '18' },
-      cozydrama: { emoji: '☕', name: 'Cozy Drama', combo: 'Drama + Romance', genres: '18,10749' },
-      crimemystery: { emoji: '🔍', name: 'Crime Mystery', combo: 'Crime + Mystery + Thriller', genres: '80,9648,53' },
-      psychothriller: { emoji: '🧠', name: 'Psychological Thriller', combo: 'Thriller + Mystery', genres: '53,9648' },
-      scifithriller: { emoji: '🤖', name: 'Sci-Fi Thriller', combo: 'Sci-Fi + Thriller', genres: '878,53' },
-      scifidrama: { emoji: '🪐', name: 'Sci-Fi Drama', combo: 'Sci-Fi + Drama', genres: '878,18' },
-      fantasyaction: { emoji: '🐉', name: 'Fantasy Action', combo: 'Fantasy + Action', genres: '14,28' },
-      fantasyromance: { emoji: '✨', name: 'Fantasy Romance', combo: 'Fantasy + Romance', genres: '14,10749' },
-      fantasyadventure: { emoji: '🌿', name: 'Fantasy Adventure', combo: 'Fantasy + Adventure', genres: '14,12' },
-      naturaldoc: { emoji: '🌍', name: 'Nature & Doc', combo: 'Documentary', genres: '99' },
-      warhistory: { emoji: '⚔️', name: 'War & History', combo: 'History + War + Drama', genres: '36,10752,18' },
-      biopic: { emoji: '🎬', name: 'Biopic Drama', combo: 'History + Drama', genres: '36,18' },
-      romanticmelodrama: { emoji: '💔', name: 'Romantic Melodrama', combo: 'Romance + Drama', genres: '10749,18' },
-      dramedy: { emoji: '🌈', name: 'Dramedy', combo: 'Drama + Comedy', genres: '18,35' },
-      animatedcheer: { emoji: '🌟', name: 'Animated Delight', combo: 'Animation + Adventure', genres: '16,12' },
-      actioncomedy: { emoji: '💥', name: 'Action Comedy', combo: 'Action + Comedy', genres: '28,35' },
-      familyfun: { emoji: '🏡', name: 'Family Fun', combo: 'Family + Adventure', genres: '10751,12' }
+      romcom:{emoji:'💕',name:'Rom-Com',combo:'Comedy + Romance',genres:'35,10749'},
+      adventurecomedy:{emoji:'🗺️',name:'Adventure Comedy',combo:'Adventure + Comedy',genres:'12,35'},
+      actionthriller:{emoji:'⚡',name:'Action Thriller',combo:'Action + Thriller',genres:'28,53'},
+      scifiadventure:{emoji:'🌌',name:'Sci-Fi Adventure',combo:'Sci-Fi + Adventure',genres:'878,12'},
+      horrorthriller:{emoji:'🕸️',name:'Horror Thriller',combo:'Horror + Thriller',genres:'27,53'},
+      emotionaldrama:{emoji:'🎭',name:'Emotional Drama',combo:'Drama-focused',genres:'18'},
+      cozydrama:{emoji:'☕',name:'Cozy Drama',combo:'Drama + Romance',genres:'18,10749'},
+      crimemystery:{emoji:'🔍',name:'Crime Mystery',combo:'Crime + Mystery + Thriller',genres:'80,9648,53'},
+      psychothriller:{emoji:'🧠',name:'Psychological Thriller',combo:'Thriller + Mystery',genres:'53,9648'},
+      scifithriller:{emoji:'🤖',name:'Sci-Fi Thriller',combo:'Sci-Fi + Thriller',genres:'878,53'},
+      scifidrama:{emoji:'🪐',name:'Sci-Fi Drama',combo:'Sci-Fi + Drama',genres:'878,18'},
+      fantasyaction:{emoji:'🐉',name:'Fantasy Action',combo:'Fantasy + Action',genres:'14,28'},
+      fantasyromance:{emoji:'✨',name:'Fantasy Romance',combo:'Fantasy + Romance',genres:'14,10749'},
+      fantasyadventure:{emoji:'🌿',name:'Fantasy Adventure',combo:'Fantasy + Adventure',genres:'14,12'},
+      naturaldoc:{emoji:'🌍',name:'Nature & Doc',combo:'Documentary',genres:'99'},
+      warhistory:{emoji:'⚔️',name:'War & History',combo:'History + War + Drama',genres:'36,10752,18'},
+      biopic:{emoji:'🎬',name:'Biopic Drama',combo:'History + Drama',genres:'36,18'},
+      romanticmelodrama:{emoji:'💔',name:'Romantic Melodrama',combo:'Romance + Drama',genres:'10749,18'},
+      dramedy:{emoji:'🌈',name:'Dramedy',combo:'Drama + Comedy',genres:'18,35'},
+      animatedcheer:{emoji:'🌟',name:'Animated Delight',combo:'Animation + Adventure',genres:'16,12'},
+      actioncomedy:{emoji:'💥',name:'Action Comedy',combo:'Action + Comedy',genres:'28,35'},
+      familyfun:{emoji:'🏡',name:'Family Fun',combo:'Family + Adventure',genres:'10751,12'}
     };
 
     let selectedType = 'movie';
@@ -599,79 +644,175 @@
     let selectedLanguage = 'all';
     let selectedContentType = 'any';
     let selectedDuration = 'any';
+    let selectedDecade = 'any';
+    let currentShareData = null;
 
     const byId = id => document.getElementById(id);
 
-    function showPage(page) {
-      ['homePage', 'wizardPage'].forEach(p => byId(p).classList.remove('active'));
-      byId(page).classList.add('active');
+    // ==================== STARS ====================
+    const canvas = byId('starsCanvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    let starsVisible = false;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function createStars() {
+      stars = [];
+      for (let i = 0; i < 120; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 1.8 + 0.3,
+          alpha: Math.random(),
+          speed: Math.random() * 0.02 + 0.005,
+          phase: Math.random() * Math.PI * 2,
+          isMoon: Math.random() < 0.04
+        });
+      }
+    }
+    createStars();
+
+    function drawStars(ts) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!starsVisible) return;
+      stars.forEach(s => {
+        const blink = 0.4 + 0.6 * Math.abs(Math.sin(ts * s.speed + s.phase));
+        ctx.save();
+        ctx.globalAlpha = s.alpha * blink;
+        if (s.isMoon) {
+          ctx.font = `${s.r * 10 + 10}px serif`;
+          ctx.fillText('🌙', s.x, s.y);
+        } else {
+          ctx.beginPath();
+          const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 2);
+          grad.addColorStop(0, '#fffde0');
+          grad.addColorStop(0.5, 'rgba(247,244,213,0.7)');
+          grad.addColorStop(1, 'transparent');
+          ctx.fillStyle = grad;
+          ctx.arc(s.x, s.y, s.r * 2, 0, Math.PI * 2);
+          ctx.fill();
+          // sparkle cross
+          ctx.strokeStyle = `rgba(255,253,220,${blink * 0.6})`;
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(s.x - s.r * 3, s.y);
+          ctx.lineTo(s.x + s.r * 3, s.y);
+          ctx.moveTo(s.x, s.y - s.r * 3);
+          ctx.lineTo(s.x, s.y + s.r * 3);
+          ctx.stroke();
+        }
+        ctx.restore();
+      });
+      requestAnimationFrame(drawStars);
+    }
+    requestAnimationFrame(drawStars);
+
+    function showStars() {
+      starsVisible = true;
+      canvas.classList.add('visible');
+    }
+    function hideStars() {
+      starsVisible = false;
+      canvas.classList.remove('visible');
     }
 
+    // ==================== CANDLE ====================
+    let candleInterval = null;
+    let candleProgress = 0; // 0..1
+    const candleMessages = [
+      'Finding your perfect watch…',
+      'Lighting the way through genres…',
+      'Almost there, candle still burning…',
+      'Curating tonight\'s magic…'
+    ];
+
+    function showCandle() {
+      const overlay = byId('candleOverlay');
+      const body = byId('candleBody');
+      const text = byId('candleText');
+      candleProgress = 0;
+      body.style.height = '90px';
+      overlay.classList.add('active');
+      let msgIdx = 0;
+      text.textContent = candleMessages[0];
+
+      candleInterval = setInterval(() => {
+        candleProgress = Math.min(candleProgress + 0.03, 0.85);
+        const newH = Math.round(90 - candleProgress * 60);
+        body.style.height = newH + 'px';
+        msgIdx = Math.floor(candleProgress * candleMessages.length);
+        text.textContent = candleMessages[Math.min(msgIdx, candleMessages.length - 1)];
+      }, 300);
+    }
+
+    function hideCandle() {
+      clearInterval(candleInterval);
+      const overlay = byId('candleOverlay');
+      const body = byId('candleBody');
+      body.style.height = '20px'; // finish melt
+      setTimeout(() => { overlay.classList.remove('active'); }, 400);
+    }
+
+    // ==================== PAGES ====================
+    function showPage(page) {
+      ['homePage','wizardPage'].forEach(p => byId(p).classList.remove('active'));
+      byId(page).classList.add('active');
+    }
     function setStep(n) {
-      ['dot1', 'dot2', 'dot3'].forEach(id => byId(id).className = 'step-dot');
-      if (n === 1) byId('dot1').classList.add('active');
-      if (n === 2) {
-        byId('dot1').classList.add('done');
-        byId('dot2').classList.add('active');
-      }
-      if (n === 3) {
-        byId('dot1').classList.add('done');
-        byId('dot2').classList.add('done');
-        byId('dot3').classList.add('active');
-      }
+      ['dot1','dot2','dot3'].forEach(id => byId(id).className = 'step-dot');
+      if (n===1) byId('dot1').classList.add('active');
+      if (n===2) { byId('dot1').classList.add('done'); byId('dot2').classList.add('active'); }
+      if (n===3) { byId('dot1').classList.add('done'); byId('dot2').classList.add('done'); byId('dot3').classList.add('active'); }
     }
 
     function renderPills() {
       byId('languageRow').innerHTML = '';
       byId('contentTypeRow').innerHTML = '';
       byId('durationRow').innerHTML = '';
+      byId('decadeRow').innerHTML = '';
 
       LANGUAGES.forEach(o => {
         const b = document.createElement('button');
-        b.className = 'pill-btn';
+        b.className = 'pill-btn' + (o.id === selectedLanguage ? ' active' : '');
         b.textContent = o.name;
-        if (o.id === selectedLanguage) b.classList.add('active');
-        b.onclick = () => {
-          selectedLanguage = o.id;
-          renderPills();
-          updateSelectedTag();
-        };
+        b.onclick = () => { selectedLanguage = o.id; renderPills(); updateSelectedTag(); };
         byId('languageRow').appendChild(b);
       });
-
       CONTENT_TYPES.forEach(o => {
         const b = document.createElement('button');
-        b.className = 'pill-btn';
+        b.className = 'pill-btn' + (o.id === selectedContentType ? ' active' : '');
         b.textContent = o.name;
-        if (o.id === selectedContentType) b.classList.add('active');
-        b.onclick = () => {
-          selectedContentType = o.id;
-          if (o.id === 'movie' || o.id === 'tv') selectedType = o.id;
-          renderPills();
-          updateSelectedTag();
-        };
+        b.onclick = () => { selectedContentType = o.id; if (o.id==='movie'||o.id==='tv') selectedType = o.id; renderPills(); updateSelectedTag(); };
         byId('contentTypeRow').appendChild(b);
       });
-
       DURATIONS.forEach(o => {
         const b = document.createElement('button');
-        b.className = 'pill-btn';
+        b.className = 'pill-btn' + (o.id === selectedDuration ? ' active' : '');
         b.textContent = o.name;
-        if (o.id === selectedDuration) b.classList.add('active');
-        b.onclick = () => {
-          selectedDuration = o.id;
-          renderPills();
-          updateSelectedTag();
-        };
+        b.onclick = () => { selectedDuration = o.id; renderPills(); updateSelectedTag(); };
         byId('durationRow').appendChild(b);
+      });
+      DECADES.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'pill-btn' + (o.id === selectedDecade ? ' active' : '');
+        b.textContent = o.name;
+        b.onclick = () => { selectedDecade = o.id; renderPills(); updateSelectedTag(); };
+        byId('decadeRow').appendChild(b);
       });
     }
 
     function updateSelectedTag() {
-      byId('selectedFiltersTag').textContent =
-        `${selectedLanguage === 'all' ? 'Any language' : LANGUAGES.find(x => x.id === selectedLanguage).name} · ` +
-        `${selectedContentType === 'any' ? 'Any type' : CONTENT_TYPES.find(x => x.id === selectedContentType).name} · ` +
-        `${selectedDuration === 'any' ? 'Any duration' : DURATIONS.find(x => x.id === selectedDuration).name}`;
+      const lang = selectedLanguage === 'all' ? 'Any language' : LANGUAGES.find(x=>x.id===selectedLanguage).name;
+      const type = selectedContentType === 'any' ? 'Any type' : CONTENT_TYPES.find(x=>x.id===selectedContentType).name;
+      const dur = selectedDuration === 'any' ? 'Any duration' : DURATIONS.find(x=>x.id===selectedDuration).name;
+      const dec = selectedDecade === 'any' ? 'Any decade' : DECADES.find(x=>x.id===selectedDecade).name;
+      byId('selectedFiltersTag').textContent = `${lang} · ${type} · ${dur} · ${dec}`;
     }
 
     function renderMoods() {
@@ -681,11 +822,7 @@
         const card = document.createElement('button');
         card.className = 'mood-card';
         card.dataset.id = m.id;
-        card.innerHTML = `
-          <span class="mood-emoji">${m.emoji}</span>
-          <span class="mood-name">${m.name}</span>
-          <span class="mood-desc">${m.desc}</span>
-        `;
+        card.innerHTML = `<span class="mood-emoji">${m.emoji}</span><span class="mood-name">${m.name}</span><span class="mood-desc">${m.desc}</span>`;
         card.addEventListener('click', () => selectMood(m));
         grid.appendChild(card);
       });
@@ -701,28 +838,21 @@
         card.className = 'vibe-card';
         card.dataset.id = id;
         card.style.animationDelay = `${i * 0.06}s`;
-        card.innerHTML = `
-          <span class="vibe-emoji">${v.emoji}</span>
-          <span class="vibe-name">${v.name}</span>
-          <span class="vibe-combo">${v.combo}</span>
-        `;
+        card.innerHTML = `<span class="vibe-emoji">${v.emoji}</span><span class="vibe-name">${v.name}</span><span class="vibe-combo">${v.combo}</span>`;
         card.addEventListener('click', () => selectVibe(id, card));
         grid.appendChild(card);
       });
     }
 
     function goToStep1() {
-      selectedMood = null;
-      selectedVibe = null;
+      selectedMood = null; selectedVibe = null;
       byId('stepMoodSection').style.display = 'block';
       byId('stepVibeSection').style.display = 'none';
       byId('resultsSection').style.display = 'none';
       byId('stepIndicator').style.display = 'flex';
       byId('pickBtn').style.display = 'none';
-      hideError();
-      setStep(1);
+      hideError(); setStep(1); hideStars();
     }
-
     function goToStep2(mood) {
       byId('selectedMoodTag').textContent = `${mood.emoji} ${mood.name}`;
       document.querySelectorAll('.mood-card').forEach(c => c.classList.remove('active'));
@@ -731,43 +861,25 @@
       byId('stepVibeSection').style.display = 'block';
       byId('resultsSection').style.display = 'none';
       byId('pickBtn').style.display = 'none';
-      hideError();
-      setStep(2);
+      hideError(); setStep(2); hideStars();
     }
-
-    function selectMood(mood) {
-      selectedMood = mood;
-      renderVibes(mood.vibes);
-      goToStep2(mood);
-    }
-
+    function selectMood(mood) { selectedMood = mood; renderVibes(mood.vibes); goToStep2(mood); }
     function selectVibe(id, el) {
       selectedVibe = id;
       document.querySelectorAll('.vibe-card').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
-      const pickBtn = byId('pickBtn');
-      if (!VIBES[id]) {
-        showError('Something went wrong with this genre blend. Try another.');
-        return;
-      }
-      pickBtn.style.display = 'block';
-      setTimeout(() => pickBtn.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+      if (!VIBES[id]) { showError('Something went wrong with this genre blend. Try another.'); return; }
+      byId('pickBtn').style.display = 'block';
+      setTimeout(() => byId('pickBtn').scrollIntoView({ behavior:'smooth', block:'center' }), 100);
     }
+    function showError(msg) { const b = byId('errBox'); b.textContent = msg; b.style.display = 'block'; }
+    function hideError() { byId('errBox').style.display = 'none'; }
 
-    function showError(msg) {
-      const box = byId('errBox');
-      box.textContent = msg;
-      box.style.display = 'block';
-    }
-
-    function hideError() {
-      byId('errBox').style.display = 'none';
-    }
-
+    // ==================== FETCH ====================
     function buildDiscoverUrl() {
       const vibe = VIBES[selectedVibe];
-      const type = selectedContentType === 'movie' || selectedContentType === 'tv' ? selectedContentType : selectedType;
-      const base = `https://api.themoviedb.org/3/discover/${selectedContentType === 'anime' ? 'tv' : type}`;
+      const type = (selectedContentType==='movie'||selectedContentType==='tv') ? selectedContentType : selectedType;
+      const base = `https://api.themoviedb.org/3/discover/${selectedContentType==='anime'?'tv':type}`;
       const params = new URLSearchParams({
         api_key: API_KEY,
         with_genres: vibe.genres,
@@ -775,95 +887,188 @@
         sort_by: 'popularity.desc',
         page: '1'
       });
-
-      if (selectedLanguage !== 'all') {
-        params.set('with_original_language', selectedLanguage);
-      }
-
-      if (selectedDuration !== 'any' && (type === 'movie' || selectedContentType === 'anime')) {
-        const d = DURATIONS.find(x => x.id === selectedDuration);
+      if (selectedLanguage !== 'all') params.set('with_original_language', selectedLanguage);
+      if (selectedDuration !== 'any' && (type==='movie'||selectedContentType==='anime')) {
+        const d = DURATIONS.find(x=>x.id===selectedDuration);
         params.set('with_runtime.gte', String(d.min));
         if (d.max < 999) params.set('with_runtime.lte', String(d.max));
       }
-
-      if (selectedContentType === 'anime') {
-        params.set('with_genres', '16,12');
+      if (selectedDecade !== 'any') {
+        const dec = DECADES.find(x=>x.id===selectedDecade);
+        if (type === 'movie') {
+          params.set('primary_release_date.gte', `${dec.from}-01-01`);
+          params.set('primary_release_date.lte', `${dec.to}-12-31`);
+        } else {
+          params.set('first_air_date.gte', `${dec.from}-01-01`);
+          params.set('first_air_date.lte', `${dec.to}-12-31`);
+        }
       }
-
+      if (selectedContentType==='anime') params.set('with_genres','16,12');
       return `${base}?${params.toString()}`;
+    }
+
+    async function fetchTrailerKey(tmdbId, type) {
+      try {
+        const t = (type === 'tv' || selectedContentType === 'anime') ? 'tv' : 'movie';
+        const res = await fetch(`https://api.themoviedb.org/3/${t}/${tmdbId}/videos?api_key=${API_KEY}`);
+        const data = await res.json();
+        const trailer = (data.results || []).find(v => v.site === 'YouTube' && v.type === 'Trailer')
+          || (data.results || []).find(v => v.site === 'YouTube');
+        return trailer ? trailer.key : null;
+      } catch { return null; }
+    }
+
+    async function fetchOMDBRatings(title, year) {
+      try {
+        const url = `https://www.omdbapi.com/?t=${encodeURIComponent(title)}&y=${year}&apikey=${OMDB_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.Response !== 'True') return null;
+        const imdb = data.imdbRating && data.imdbRating !== 'N/A' ? data.imdbRating : null;
+        const rt = (data.Ratings || []).find(r => r.Source === 'Rotten Tomatoes');
+        const rtScore = rt ? rt.Value : null;
+        return { imdb, rt: rtScore };
+      } catch { return null; }
     }
 
     async function fetchResults() {
       if (!selectedVibe) return;
       const vibe = VIBES[selectedVibe];
-      if (!vibe || !vibe.genres) {
-        showError('Please select a valid genre blend.');
-        return;
-      }
-
+      if (!vibe || !vibe.genres) { showError('Please select a valid genre blend.'); return; }
       hideError();
       const btn = byId('pickBtn');
-      const btnText = byId('pickBtnText');
       btn.disabled = true;
-      btn.classList.add('loading');
-      btnText.textContent = 'Finding your picks…';
-
+      showCandle();
       try {
         const url = buildDiscoverUrl();
         const res = await fetch(url);
         const data = await res.json();
-
-        if (!res.ok) {
-          showError(data.status_message || `TMDB error ${res.status}`);
-          return;
-        }
-
-        const results = Array.isArray(data.results) ? data.results.slice(0, 12) : [];
-        if (!results.length) {
-          showError('No titles found for this blend.');
-          return;
-        }
-
-        displayResults(results, vibe);
+        if (!res.ok) { showError(data.status_message || `TMDB error ${res.status}`); return; }
+        const results = Array.isArray(data.results) ? data.results.slice(0, 8) : [];
+        if (!results.length) { showError('No titles found for this blend.'); return; }
+        await displayResults(results, vibe);
         goToStep3();
       } catch (e) {
         console.error(e);
         showError('Fetch failed. Check console for details.');
       } finally {
+        hideCandle();
         btn.disabled = false;
-        btn.classList.remove('loading');
-        btnText.textContent = 'Find My Picks ✦';
+        byId('pickBtnText').textContent = 'Find My Picks ✦';
       }
     }
 
-    function displayResults(results, vibe) {
+    async function displayResults(results, vibe) {
       const grid = byId('resultsGrid');
       byId('resultsTitle').textContent = `${vibe.emoji} ${vibe.name} picks`;
       byId('resultsCount').textContent = `${results.length} results`;
       grid.innerHTML = '';
 
-      results.forEach((item, i) => {
+      const type = (selectedContentType==='movie') ? 'movie' : (selectedContentType==='tv'||selectedContentType==='anime') ? 'tv' : selectedType;
+
+      for (let i = 0; i < results.length; i++) {
+        const item = results[i];
         const title = item.title || item.name || 'Untitled';
-        const date = (item.release_date || item.first_air_date || '').slice(0, 4) || '—';
-        const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+        const date = (item.release_date || item.first_air_date || '').slice(0,4) || '—';
+        const tmdbRating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
         const overview = item.overview || 'No description available.';
         const poster = item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : '';
 
         const card = document.createElement('div');
         card.className = 'result-card';
+        card.style.animationDelay = `${i * 0.08}s`;
+
+        const typeLabel = selectedContentType==='tv' ? 'TV Show' : selectedContentType==='anime' ? 'Anime' : 'Movie';
+
         card.innerHTML = `
-          <div class="result-poster-wrap">
-            ${poster ? `<img class="result-poster" src="${poster}" alt="${title} poster" loading="lazy">` : `<div class="result-poster-placeholder">🎬</div>`}
+          <div class="result-card-top">
+            <div class="result-poster-wrap">
+              ${poster ? `<img class="result-poster" src="${poster}" alt="${title} poster" loading="lazy">` : `<div class="result-poster-placeholder">🎬</div>`}
+            </div>
+            <div class="result-body">
+              <div class="result-rank">#${i+1} pick</div>
+              <h3 class="result-title">${title}</h3>
+              <p class="result-meta">${date} · ${typeLabel}</p>
+              <div class="result-ratings">
+                <span class="rating-badge rating-tmdb">★ ${tmdbRating} TMDB</span>
+                <span class="rating-badge rating-imdb" id="imdb-${i}" style="display:none"></span>
+                <span class="rating-badge" id="rt-${i}" style="display:none"></span>
+              </div>
+              <p class="result-overview">${overview}</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+                <button class="trailer-toggle" id="trailerToggle-${i}" data-idx="${i}" data-tmdb="${item.id}">▶ Watch Trailer</button>
+                <button class="share-btn" data-title="${title.replace(/"/g,'')}" data-date="${date}" data-type="${typeLabel}" data-mood="${selectedMood ? selectedMood.emoji+' '+selectedMood.name : ''}" data-vibe="${vibe.emoji}" data-rating="${tmdbRating}" data-poster="${poster}">↗ Share</button>
+              </div>
+            </div>
           </div>
-          <div class="result-body">
-            <div class="result-rank">#${i + 1} pick</div>
-            <h3 class="result-title">${title}</h3>
-            <p class="result-meta">${date} · ${selectedContentType === 'tv' ? 'TV Show' : selectedContentType === 'anime' ? 'Anime' : 'Movie'}</p>
-            <div class="result-rating">★ ${rating}</div>
-            <p class="result-overview">${overview}</p>
+          <div class="result-trailer" id="trailerSection-${i}">
+            <div class="trailer-embed" id="trailerEmbed-${i}"></div>
           </div>
         `;
         grid.appendChild(card);
+
+        // Show trailer section space
+        card.querySelector('.result-trailer').style.display = 'block';
+
+        // Fetch OMDB ratings async
+        if (date !== '—') {
+          fetchOMDBRatings(title, date).then(ratings => {
+            if (!ratings) return;
+            if (ratings.imdb) {
+              const el = byId(`imdb-${i}`);
+              if (el) { el.textContent = `⭐ ${ratings.imdb} IMDb`; el.style.display = 'inline-flex'; }
+            }
+            if (ratings.rt) {
+              const el = byId(`rt-${i}`);
+              if (el) {
+                const pct = parseInt(ratings.rt);
+                el.textContent = `${pct >= 60 ? '🍅' : '🦠'} ${ratings.rt}`;
+                el.className = 'rating-badge ' + (pct >= 60 ? 'rating-rt-fresh' : 'rating-rt-rotten');
+                el.style.display = 'inline-flex';
+              }
+            }
+          });
+        }
+      }
+
+      // Trailer toggles
+      grid.querySelectorAll('.trailer-toggle').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const idx = this.dataset.idx;
+          const tmdbId = this.dataset.tmdb;
+          const embed = byId(`trailerEmbed-${idx}`);
+          if (embed.classList.contains('open')) {
+            embed.classList.remove('open');
+            embed.innerHTML = '';
+            this.textContent = '▶ Watch Trailer';
+            return;
+          }
+          this.textContent = '⏳ Loading…';
+          const key = await fetchTrailerKey(tmdbId, type);
+          if (key) {
+            embed.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${key}?autoplay=1&rel=0" allowfullscreen allow="autoplay"></iframe>`;
+            embed.classList.add('open');
+            this.textContent = '✕ Close Trailer';
+          } else {
+            this.textContent = '⚠ No trailer found';
+            setTimeout(() => { this.textContent = '▶ Watch Trailer'; }, 2000);
+          }
+        });
+      });
+
+      // Share buttons
+      grid.querySelectorAll('.share-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          openShareModal({
+            title: this.dataset.title,
+            date: this.dataset.date,
+            type: this.dataset.type,
+            mood: this.dataset.mood,
+            vibe: this.dataset.vibe,
+            rating: this.dataset.rating,
+            poster: this.dataset.poster
+          });
+        });
       });
     }
 
@@ -873,26 +1078,54 @@
       byId('stepIndicator').style.display = 'none';
       byId('resultsSection').style.display = 'block';
       setStep(3);
+      showStars();
     }
 
-    byId('openWizardBtn').onclick = () => {
-      showPage('wizardPage');
-      renderMoods();
-      renderPills();
-      updateSelectedTag();
-      goToStep1();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    // ==================== SHARE ====================
+    function openShareModal(data) {
+      currentShareData = data;
+      byId('shareEmoji').textContent = data.vibe || '🎬';
+      byId('shareTitle').textContent = data.title;
+      byId('shareMeta').textContent = `${data.date} · ${data.type} · ★ ${data.rating}`;
+      byId('shareMood').textContent = data.mood ? `Mood: ${data.mood}` : '';
+      byId('shareModal').classList.add('open');
+    }
+    function closeShareModal() { byId('shareModal').classList.remove('open'); }
+
+    byId('shareClose').onclick = closeShareModal;
+    byId('shareModal').onclick = function(e) { if (e.target === this) closeShareModal(); };
+
+    byId('shareCopy').onclick = function() {
+      if (!currentShareData) return;
+      const text = `🌙 Tonight I'm watching: ${currentShareData.title} (${currentShareData.date})\n${currentShareData.mood ? 'Mood: '+currentShareData.mood : ''}\n★ ${currentShareData.rating} on TMDB\n\nFind yours → https://w2wtonight.netlify.app`;
+      navigator.clipboard.writeText(text).then(() => {
+        this.textContent = '✓ Copied!';
+        setTimeout(() => { this.textContent = '📋 Copy text'; }, 2000);
+      });
     };
 
-    byId('backHomeBtn').onclick = () => showPage('homePage');
+    byId('shareNative').onclick = function() {
+      if (!currentShareData) return;
+      const text = `🌙 Tonight I'm watching: ${currentShareData.title} (${currentShareData.date}) — ★ ${currentShareData.rating} on TMDB\nFind yours → https://w2wtonight.netlify.app`;
+      if (navigator.share) {
+        navigator.share({ title: `W2W: ${currentShareData.title}`, text, url: 'https://w2wtonight.netlify.app' });
+      } else {
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+      }
+    };
+
+    // ==================== WIRING ====================
+    byId('openWizardBtn').onclick = () => {
+      showPage('wizardPage');
+      renderMoods(); renderPills(); updateSelectedTag(); goToStep1();
+      window.scrollTo({ top:0, behavior:'smooth' });
+    };
+    byId('backHomeBtn').onclick = () => { hideStars(); showPage('homePage'); };
     byId('backBtn').onclick = () => goToStep1();
     byId('pickBtn').onclick = fetchResults;
-    byId('startOverBtn').onclick = () => goToStep1();
+    byId('startOverBtn').onclick = () => { hideStars(); goToStep1(); };
 
-    renderMoods();
-    renderPills();
-    updateSelectedTag();
-    goToStep1();
+    renderMoods(); renderPills(); updateSelectedTag(); goToStep1();
   </script>
 </body>
 </html>
